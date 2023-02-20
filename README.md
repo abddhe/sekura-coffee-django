@@ -1,0 +1,1 @@
+# sekura-coffee-django
