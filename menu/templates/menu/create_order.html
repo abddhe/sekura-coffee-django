@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}
+    create order
+{% endblock %}
+{% block content %}
+    <section class="page-section contact-us-heading">
+        <div class="container">
+         <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Order</button>
+  </form>
+        </div>
+    </section>
+{% endblock %}
