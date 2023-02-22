@@ -1,14 +1,24 @@
 from django.db import models
+from django.urls import reverse
+from django.template.defaultfilters import slugify
 
 
-# Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=150)
+    slug = models.SlugField(null=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("item_list", kwargs={"category": self.slug})
+
+    def save(self, *args, **kwargs):  # new
+        if not self.slug:
+            self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
 
 class Item(models.Model):
@@ -23,6 +33,9 @@ class Item(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name} - {self.updated_at}"
+
+    def get_absolute_url(self):
+        return reverse("item_detail", kwargs={"pk": self.pk, "category": self.category.slug})
 
 
 class Order(models.Model):
@@ -41,6 +54,8 @@ class Order(models.Model):
 class Comment(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.body} - {self.order}"

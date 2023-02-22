@@ -13,6 +13,10 @@ class CategoryModelTest(TestCase):
         expected_string = category.name
         self.assertEqual(str(category), expected_string)
 
+    def test_get_absolute_url(self):
+        category = Category.objects.get(id=1)
+        self.assertEqual(category.get_absolute_url(), f"/menu/{category.slug}")
+
 
 class ItemModelTest(TestCase):
 
@@ -25,6 +29,11 @@ class ItemModelTest(TestCase):
         item = Item.objects.get(pk=1)
         expected_string = f"{item.name} - {item.updated_at}"
         self.assertEqual(str(item), expected_string)
+
+    def test_get_absolute_url(self):
+        category = Category.objects.get(id=1)
+        item = Item.objects.get(pk=1)
+        self.assertEqual(item.get_absolute_url(), f"/menu/{category.slug}/1")
 
 
 class OrderModelTest(TestCase):

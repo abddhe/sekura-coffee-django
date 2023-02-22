@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Orders
+{% endblock %}
+{% block content %}
+    <section class="page-section orders-heading">
+        <div class="container">
+            <div class="boxes mb-3">
+                <div class="box bg-faded rounded">
+                    <a href="#" class="image">
+                        <img src="{% static 'assets/img/products-01.jpg' %}" alt="item"/>
+                    </a>
+                    <div class="counter">
+                        <span class="btn-icon plus" aria-roledescription="button" role="button"> <i class="fa fa-plus"></i></span>
+                        <span class="show">0</span>
+                        <span class="btn-icon minus" aria-roledescription="button" role="button"> <i class="fa fa-minus"></i></span>
+                    </div>
+                    <div class="actions">
+                        <span class="btn-icon remove">
+                            <i class="fa fa-x"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="checkout bg-faded rounded ">
+                <div class="price">
+                    Total:
+                    <span id="total-price">0</span>$
+                </div>
+                <div>
+                    <a href="#" class="btn btn-submit">Checkout</a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

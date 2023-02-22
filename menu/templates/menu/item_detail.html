@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    {{ item.name }}
+{% endblock %}
+
+{% block content %}
+    <section class="page-section items-heading">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-sm-6">
+                    <div class="h-25">
+                        <img src="{% static 'assets/img/products-01.jpg' %}" class="w-100" alt="product"/>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-sm-6">
+                    <div class="name mb-3">
+                        Name: {{ item.name }}
+                    </div>
+                    <div class="price mb-3">
+                        Price: {{ item.price }}$
+
+                    </div>
+                    <div class="description mb-3">
+                        Description: {{ item.description }}
+                    </div>
+                    <button class="btn bg-faded w-100">Make order</button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+{% endblock %}
