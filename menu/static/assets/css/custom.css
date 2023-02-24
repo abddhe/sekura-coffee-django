@@ -21,28 +21,28 @@
     color: #000;
 }
 
-.boxes .box {
+.card-body .box {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px;
 }
 
-.boxes .box .image {
+.card-body .box .image {
     max-width: 100px;
     max-height: max-content;
 }
 
-.boxes .box .image img {
+.card-body .box .image img {
     width: 100%;
 }
 
-.boxes .box .counter {
+.card-body .box .counter {
     display: flex;
     align-items: center;
 }
 
-.boxes .box .btn-icon {
+.card-body .box .btn-icon {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -55,18 +55,18 @@
     cursor: pointer;
 }
 
-.boxes .box .counter .btn-icon {
+.card-body .box .counter .btn-icon {
     background-color: var(--main-color);
     color: #fff;
 }
 
-.boxes .box .counter .show {
+.card-body .box .counter .show {
     border: 1px solid transparent;
     text-align: center;
     font-size: 1.3rem;
 }
 
-.boxes .box .actions .btn-icon {
+.card-body .box .actions .btn-icon {
     background-color: #c5c5c5;
     color: #fff;
 }
@@ -82,6 +82,6 @@
     color: #fff;
 }
 
-.items-heading .container {
+.item-heading .container {
     color: #fff;
 }

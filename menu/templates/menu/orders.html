@@ -6,24 +6,47 @@
 {% block content %}
     <section class="page-section orders-heading">
         <div class="container">
-            <div class="boxes mb-3">
-                <div class="box bg-faded rounded">
-                    <a href="#" class="image">
-                        <img src="{% static 'assets/img/products-01.jpg' %}" alt="item"/>
-                    </a>
-                    <div class="counter">
-                        <span class="btn-icon plus" aria-roledescription="button" role="button"> <i class="fa fa-plus"></i></span>
-                        <span class="show">0</span>
-                        <span class="btn-icon minus" aria-roledescription="button" role="button"> <i class="fa fa-minus"></i></span>
+            {% for order in order_list %}
+                <div data-id="{{ order.pk }}" class="card bg-faded mb-3">
+
+                    <div class="card-header">Order #1</div>
+                    <div class="card-body">
+                        {% for item in order.orderitem_set.all %}
+                            <div class="box bg-warning rounded mb-3" data-id="{{ item.item.pk }}">
+                                <a href="#" class="image">
+                                    <img src="{{ item.item.image.url }}" alt="item"/>
+                                </a>
+                                <div class="counter">
+                                    <span class="btn-icon plus" aria-roledescription="button" role="button"> <i
+                                            class="fa fa-plus"></i></span>
+                                    <span class="show">{{ item.count }}</span>
+                                    <span class="btn-icon minus" aria-roledescription="button" role="button"> <i
+                                            class="fa fa-minus"></i></span>
+                                </div>
+                                <div class="actions">
+                                    <span class="btn-icon remove">
+                                        <i class="fa fa-x"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
-                    <div class="actions">
-                        <span class="btn-icon remove">
-                            <i class="fa fa-x"></i>
-                        </span>
+                    <div class="card-footer">
+                        {% if order.ordered %}
+                            <button type="button" class="btn order-cancel w-100 btn-submit">Cancel</button>
+                        {% else %}
+                            <button type="button" data-id="{{ order.pk }}" class="btn make-order w-100 btn-submit">
+                                Make Order
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
-            </div>
-            <div class="checkout bg-faded rounded ">
+                {% empty %}
+                <div class="bg-faded rounded text-center py-3">
+                <strong>0 Orders</strong>
+                </div>
+            {% endfor %}
+            {% comment %}<div class="checkout bg-faded rounded ">
                 <div class="price">
                     Total:
                     <span id="total-price">0</span>$
@@ -31,7 +54,7 @@
                 <div>
                     <a href="#" class="btn btn-submit">Checkout</a>
                 </div>
-            </div>
+            </div>{% endcomment %}
         </div>
     </section>
 {% endblock %}
