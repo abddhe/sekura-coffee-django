@@ -128,4 +128,28 @@ $(() => {
             }
         })
     })
+    $(function() {
+        $('#comment-form').on('submit', function(e) {
+          e.preventDefault();
+          var body = $('#comment-body').val();
+          var order_id = '{{ order.id }}';
+          $.ajax({
+            url: '{% url "add_comment" %}',
+            method: 'POST',
+            data: {
+              'order_id': order_id,
+              'body': body,
+              'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+              // Handle successful response here
+              console.log(response);
+            },
+            error: function(xhr, status, error) {
+              // Handle error response here
+              console.log(xhr.responseText);
+            }
+          });
+        });
+      });
 })

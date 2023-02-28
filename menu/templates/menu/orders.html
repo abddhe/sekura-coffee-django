@@ -31,6 +31,8 @@
                             </div>
                         {% endfor %}
                     </div>
+           
+  
                     <div class="card-footer">
                         {% if order.ordered %}
                             <button type="button" class="btn order-cancel w-100 btn-submit">Cancel</button>
@@ -38,6 +40,7 @@
                             <button type="button" data-id="{{ order.pk }}" class="btn make-order w-100 btn-submit">
                                 Make Order
                             </button>
+                            <a href="{% url 'add_comment' order.pk %}" class="btn btn-primary w-100 mt-2">Add Comment</a>
                         {% endif %}
                     </div>
                 </div>
