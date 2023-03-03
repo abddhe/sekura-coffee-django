@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+
+    <section class="page-section cta">
+        <div class="container">
+            <div class="row">
+               <!-- Display order details and comments here -->
+
+                <form id="comment-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                    <label for="comment-body">Add a comment:</label>
+                    <textarea class="form-control" id="comment-body" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+  
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
