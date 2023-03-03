@@ -142,13 +142,11 @@ def order_update(request: HttpRequest):
     try:
         if request.method == "POST":
             operation_type = str(request.GET['op']).strip().lower()
-            request.POST.get('order')
             if operation_type == "order-cancel":
                 order = Order.objects.get(pk=int(request.POST['order']))
                 order.delete()
                 return JsonResponse(
                     {'status': 'success', 'operation': "order-cancel", 'message': "Order has been canceled"})
-            request.POST.get('item')
             order_item = get_object_or_404(OrderItem, order_id=int(request.POST['order']),
                                            item_id=int(request.POST['item']))
             if order_item.order.ordered:
