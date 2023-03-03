@@ -14,6 +14,9 @@ urlpatterns = [
     path('orders/create', views.order_create, name="order_create"),
     path('orders/make-order', views.order_make, name="order_make"),
     path('orders/update', views.order_update, name="order_update"),
+    path('orders/<int:pk>/comments', views.comment_listing, name="comment_list"),
+    path('orders/<int:pk>/comments/create', views.comment_create, name="comment_create"),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,

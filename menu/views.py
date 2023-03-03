@@ -1,15 +1,18 @@
+import json
+from django.db import models
 from django.shortcuts import get_object_or_404, redirect, render, get_list_or_404
 from django.views.generic import (CreateView, UpdateView, TemplateView, ListView, DetailView)
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from .models import (Category, Item, Order, Table, OrderItem)
+from .models import (Category, Item, Comment, Order, Table, OrderItem, Notification)
 from datetime import datetime
 from django.urls import reverse_lazy
-from menu.forms import OrderForm
-from django.http import (Http404, HttpRequest, JsonResponse)
+from menu.forms import CommentForm
+from django.http import (Http404, HttpRequest, JsonResponse, HttpResponse)
 from django.core.exceptions import ObjectDoesNotExist
+from menu.utils import send_notification
+from django.core.serializers.json import DjangoJSONEncoder
 
 
-# Create your views here.
 class HomeView(TemplateView):
     template_name = 'menu/index.html'
 
@@ -32,7 +35,7 @@ class OrderListView(HomeView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        context['order_list'] = Order.objects.filter(table_id=1, order_accept=False)
+        context['order_list'] = Order.objects.filter(table_id=1, canceled=False, created_at__date=datetime.today()).order_by('-created_at')
         return context
 
 
@@ -90,9 +93,12 @@ def order_create(request: HttpRequest):
                 request.session.save()
             else:
                 order = Order.objects.get(pk=request.session['order'])
+            if order.ordered:
+                order = Order.objects.create(table_id=1)
+                request.session['order'] = order.pk
+                request.session.save()
             order_items = OrderItem.objects.filter(order=order, item=item).exists()
             if not order_items:
-                print()
                 OrderItem.objects.create(order=order, item=item)
             else:
                 order_items = OrderItem.objects.filter(order=order, item=item).first()
@@ -119,13 +125,15 @@ def order_make(request: HttpRequest):
             order.save()
             # here must be notification firebase
             return JsonResponse({"status": 'success', "message": "Order has been sent to chief",
-                                 "html": ' <button type="button" class="btn order-cancel w-100 btn-submit">Cancel</button>'})
+                                 "html": '<button type="button" class="btn mb-2 comment w-100 btn-submit">Order Comment</button><button type="button" class="btn order-cancel w-100 btn-submit">Cancel</button>'})
         return redirect(reverse_lazy('home'))
     except ObjectDoesNotExist:
         return JsonResponse({"status": 'error', "message": "This order is not exists"})
     except Http404:
         return JsonResponse({"status": 'error', "message": "This order is not exists"})
     except ValueError:
+        return JsonResponse({"status": "error", 'message': "Please don't play on site"})
+    except KeyError:
         return JsonResponse({"status": "error", 'message': "Please don't play on site"})
 
 
@@ -143,6 +151,8 @@ def order_update(request: HttpRequest):
             request.POST.get('item')
             order_item = get_object_or_404(OrderItem, order_id=int(request.POST['order']),
                                            item_id=int(request.POST['item']))
+            if order_item.order.ordered:
+                raise ValueError()
             if operation_type == 'count-plus':
                 order_item.count += 1
                 order_item.save()
@@ -178,10 +188,52 @@ def order_update(request: HttpRequest):
                      'message': "Item has been removed from your order"})
         return redirect(reverse_lazy('home'))
     except ObjectDoesNotExist:
-        return JsonResponse({"status": 'error', "message": "This order is not exists"})
+        return JsonResponse({"status": 'error', "message": "This order is not exists"}, status=404)
     except Http404:
-        return JsonResponse({"status": 'error', "message": "order item is not exists"})
+        return JsonResponse({"status": 'error', "message": "order item is not exists"}, status=404)
     except ValueError:
-        return JsonResponse({"status": "error", 'message': "Please don't play on site"})
+        return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)
     except KeyError:
-        return JsonResponse({"status": "error", 'message': "Please don't play on site"})
+        return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)
+
+
+def comment_listing(request: HttpRequest, pk: int):
+    try:
+        if request.method != 'GET':
+            return redirect(reverse_lazy('home'))
+        order = get_object_or_404(Order, pk=pk)
+        comments = Comment.objects.filter(order=order).values()
+        if comments.count() == 0:
+            data = False
+        else:
+            data = list(comments)
+        return JsonResponse({"status": "success", "data": data}, safe=False)
+    except Http404:
+        return JsonResponse({"status": 'error', "message": "This order is not exists"}, status=404)
+    except ValueError:
+        return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)
+    except KeyError:
+        return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)
+
+
+@csrf_exempt
+def comment_create(request, pk: int):
+    try:
+        if request.method != 'POST':
+            return redirect(reverse_lazy('home'))
+        post = request.POST.copy()
+        order = get_object_or_404(Order, pk=pk)
+        post['order'] = order.pk
+        form = CommentForm(data=post)
+        if form.is_valid():
+            form.save()
+            comments = Comment.objects.filter(order_id=pk).values()
+            data = list(comments)
+            return JsonResponse({"status": "success", "data": data})
+        return JsonResponse({"status": 'error', "errors": form.errors}, status=404)
+    except Http404:
+        return JsonResponse({"status": 'error', "message": "This order is not exists"}, status=404)
+    except ValueError:
+        return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)
+    except KeyError:
+        return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)

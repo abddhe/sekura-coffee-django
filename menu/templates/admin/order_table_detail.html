@@ -1,0 +1,23 @@
+{% extends 'admin/base.html' %}
+{% load extra_context %}
+{% block content %}
+    <h1><a href="{% url 'admin:table_orders' order.table_id %}">Order <span class="fw-bolder">#{{ order.pk }}</span></a> </h1>
+    <h3>Items:</h3>
+    <ul>
+        {% for orderitem in order.orderitem_set.all %}
+            <li>{{ orderitem.item.name }} <strong>count:</strong> {{ orderitem.count }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Comments:</h3>
+    <ul class="list-group" id="comments_{{ order.pk }}">
+        {% for comment in order.comment_set.all|dictsortreversed:"created_at" %}
+            <li class="list-group-item list-unstyled mb-2 bg-info bg-opacity-50 d-flex justify-content-between align-content-center">
+                <span class="d-block">{{ comment.body }}</span><span class="d-block"> {% if comment.created_at|new  %}
+                <span class="badge text-primary text-uppercase">new</span>
+                {% endif %}  </span></li>
+        {% endfor %}
+
+    </ul>
+
+
+{% endblock %}

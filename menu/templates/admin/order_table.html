@@ -1,0 +1,67 @@
+{% extends 'admin/base.html' %}
+{% load static extra_context %}
+{% block messages %}
+    {% if messages %}
+        <ul class="messagelist">{% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+        {% endfor %}</ul>
+    {% endif %}
+{% endblock messages %}
+{% block content %}
+    <div id="order_table">
+    {% if orders|length %}
+    <form method="post" action="{% url 'admin:table_order_delete_all' table.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger text-uppercase mb-2">Cancel all orders</button>
+    </form>
+    {% endif %} 
+        {% for order in orders %}
+            <div class="card mb-3" data-id="{{ order.pk }}">
+                <div class="card-header d-flex justify-content-between align-content-center">
+                    <a href="{% url 'admin:table_order_details' order.table_id order.pk %}">Order
+                        <strong>#{{ order.pk }}</strong></a>
+                    {% if not order.order_accept and order.created_at|new and not order.canceled %}
+                        <div><span class="badge bg-primary text-uppercase">new</span></div>
+                    {% endif %}
+                    {% if order.canceled %}
+                        <div><span class="badge bg-danger text-uppercase">canceled</span></div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row card-deck ">
+                        {% for order_item in order.orderitem_set.all %}
+                            <div class="col-lg-4 col-md-6 col-sm-4 mb-3">
+                                <div class="card">
+                                    <img class="card-img-top" src="{{ order_item.item.image.url }}" alt="product"/>
+                                    <div class="card-body">
+                                        <div class="card-title"><p>
+                                            {{ order_item.item.name }}</p>
+                                        </div>
+                                    </div>
+                                    <div id="#card-footer" class="card-footer">
+                                        count: {{ order_item.count }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if not order.order_accept or order.canceled %}
+                    <div class="card-footer">
+                        {% if order.canceled %}
+                            <form method="post" action="{% url 'admin:table_order_delete' order.table_id order.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn w-100 btn-danger">Delete order</button>
+                            </form>
+                        {% else %}
+                            <button type="button" class="btn mb-2 accept-order w-100 btn-dark">Accept order</button>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="alert alert-info bg-opacity-50 text-center text-uppercase">This table don't have orders</div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

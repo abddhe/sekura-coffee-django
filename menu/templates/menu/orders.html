@@ -8,21 +8,22 @@
         <div class="container">
             {% for order in order_list %}
                 <div data-id="{{ order.pk }}" class="card bg-faded mb-3">
-
-                    <div class="card-header">Order #1</div>
+                    <div class="card-header">Order <strong>#{{ order.pk }}</strong></div>
                     <div class="card-body">
                         {% for item in order.orderitem_set.all %}
                             <div class="box bg-warning rounded mb-3" data-id="{{ item.item.pk }}">
                                 <a href="#" class="image">
                                     <img src="{{ item.item.image.url }}" alt="item"/>
                                 </a>
-                                <div class="counter">
+                              {% if not order.ordered %}
+                                    <div class="counter">
                                     <span class="btn-icon plus" aria-roledescription="button" role="button"> <i
                                             class="fa fa-plus"></i></span>
                                     <span class="show">{{ item.count }}</span>
                                     <span class="btn-icon minus" aria-roledescription="button" role="button"> <i
                                             class="fa fa-minus"></i></span>
                                 </div>
+                              {% endif %}
                                 <div class="actions">
                                     <span class="btn-icon remove">
                                         <i class="fa fa-x"></i>
@@ -32,6 +33,7 @@
                         {% endfor %}
                     </div>
                     <div class="card-footer">
+                        <button type="button" class="btn mb-2 comment w-100 btn-submit">Order Comment</button>
                         {% if order.ordered %}
                             <button type="button" class="btn order-cancel w-100 btn-submit">Cancel</button>
                         {% else %}
@@ -41,9 +43,9 @@
                         {% endif %}
                     </div>
                 </div>
-                {% empty %}
+            {% empty %}
                 <div class="bg-faded rounded text-center py-3">
-                <strong>0 Orders</strong>
+                    <strong>0 Orders</strong>
                 </div>
             {% endfor %}
             {% comment %}<div class="checkout bg-faded rounded ">
