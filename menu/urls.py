@@ -16,8 +16,7 @@ urlpatterns = [
     path('orders/make-order', views.order_make, name="order_make"),
     path('orders/update', views.order_update, name="order_update"),
   
-
-    path('add_comment/', add_comment, name='add_comment'),
+    path('orders/add_comment/<int:pk>', add_comment, name='add_comment'),
 ]
 
 
