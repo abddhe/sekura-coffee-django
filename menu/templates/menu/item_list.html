@@ -7,15 +7,18 @@
 {% block content %}
     <section class="page-section items-heading">
         <div class="container">
-            <div class="row">
+            <div class="row card-deck ">
                 {% for item in item_list %}
-                    <div class="col-lg-3 col-sm-3 mb-3">
+                    <div class="col-lg-4 col-md-6 col-sm-4 mb-3">
                         <div class="card ">
-                                <a href="{% url 'item_detail' item.category.slug item.id %}" class=" d-inline-block " style="height:  10.1rem;"
-                                  >
-                                    <img class="card-img-top" src="{{ item.image.url }}" alt="product"/>
-                                </a>
-                            <div class="card-body mt-3">
+
+                            <a href="{% url 'item_detail' item.category.slug item.id %}" class=" d-inline-block "
+
+                            >
+                                <img class="card-img-top" src="{{ item.image.url }}" alt="product"/>
+                            </a>
+
+                            <div class="card-body">
                                 <div class="card-title d-flex justify-content-between align-content-center"><p>
                                     {{ item.name }}</p>
                                     <p>{{ item.price }}$</p></div>
@@ -28,7 +31,6 @@
                         </div>
                     </div>
                 {% endfor %}
-
             </div>
         </div>
     </section>

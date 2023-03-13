@@ -24,11 +24,13 @@ SECRET_KEY = "django-insecure-w2z5y&@v2=&0nnef&djigof7wmhvfv=hr0^@)kas7^9cpwb2n1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.131', "*", "localhost", "127.0.0.1"]
 
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
+    "corsheaders",
     "menu.apps.MenuConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -41,13 +43,14 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 ROOT_URLCONF = "sekura.urls"
 
 TEMPLATES = [
@@ -67,6 +70,22 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "sekura.wsgi.application"
+# channels
+ASGI_APPLICATION = 'sekura.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("127.0.0.1", 6379)],
+#         },
+#     },
+# }
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -114,7 +133,7 @@ STATIC_URL = "static/"
 
 # Media files
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("receive_time", models.DateTimeField(blank=True, null=True)),
+                ("receive_time", models.TimeField(blank=True, null=True)),
                 ("total_price", models.FloatField(blank=True, default=0)),
                 ("ordered", models.BooleanField(default=False)),
                 ("order_accept", models.BooleanField(default=False)),

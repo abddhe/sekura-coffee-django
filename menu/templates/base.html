@@ -6,7 +6,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/sakura.ico' %}"/>
+    <link rel="icon" type="image/x-icon" href="{% static 'menu/img/sakura.ico' %}"/>
     <!-- Font Awesome icons (free version)-->
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Google fonts-->
@@ -16,7 +16,7 @@
           rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i" rel="stylesheet"/>
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet"/>
+    <link href="{% static 'menu/css/main.css' %}" rel="stylesheet"/>
     <title>Sekura Coffee | {% block title %}
 
     {% endblock %}</title>
@@ -54,8 +54,11 @@
                     </div>
                 {% endif %}
                 <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'about_us' %}">about us</a>
-                <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'contact_us' %}">contact us</a>
-                <li class="nav-item px-lg-4"><a class="nav-link text-uppercase position-relative" href="{% url 'orders' %}">orders  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-faded text-dark">5</span></a>
+                <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'contact_us' %}">contact
+                    us</a>
+                <li class="nav-item px-lg-4"><a class="nav-link text-uppercase position-relative"
+                                                href="{% url 'orders' %}">orders <span
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-faded text-dark">5</span></a>
                 </li>
             </ul>
         </div>
@@ -72,11 +75,9 @@
 </footer>
 <!-- Bootstrap core JS-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<!-- JQuery JS-->
-<script src="{% static 'assets/js/plugins/jQuery.js' %}"></script>
-<script src="{% static 'assets/js/plugins/jQuery.cookie.js' %}"></script>
+<script type="module" src="{% static 'menu/js/plugins/popper.js' %}"></script>
 <!-- Core theme JS-->
-<script src="{% static 'assets/js/scripts.js' %}"></script>
+<script type="module" src="{% static 'menu/js/scripts.js' %}"></script>
 
 </body>
 </html>

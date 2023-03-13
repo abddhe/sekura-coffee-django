@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.template.defaultfilters import slugify
+from django.contrib.auth.models import User
 
 
 class Category(models.Model):
@@ -66,14 +67,21 @@ class Table(models.Model):
 class Order(models.Model):
     items = models.ManyToManyField(Item, through='OrderItem')
     table = models.ForeignKey(Table, on_delete=models.CASCADE)
-    receive_time = models.DateTimeField(blank=True, null=True)
+    receive_time = models.TimeField(blank=True, null=True)
     total_price = models.FloatField(blank=True, default=0)
     ordered = models.BooleanField(default=False)
+    canceled = models.BooleanField(default=False)
     order_accept = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self) -> str:
+    def delete(self, using=None, keep_parents=False, force_delete=False):
+        if self.canceled or force_delete:
+            return super().delete()
+        self.canceled = True
+        self.save(using=using)
+
+    def __str__(self):
         return f"{self.table} , {self.receive_time}"
 
     def get_absolute_url(self):
@@ -87,6 +95,9 @@ class OrderItem(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.order}"
+
 
 class Comment(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
@@ -96,3 +107,22 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.body} - {self.order}"
+
+
+class Notification(models.Model):
+    MESSAGE = "message"
+    ORDER = 'order'
+    COMMENT = 'comment'
+    CHOICES = [
+        (0, MESSAGE),
+        (1, ORDER),
+        (2, COMMENT),
+    ]
+    body = models.TextField()
+    type = models.IntegerField(choices=CHOICES)
+    opened = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.body
