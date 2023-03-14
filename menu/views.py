@@ -293,12 +293,9 @@ def comment_create(request, pk: int):
         post = request.POST.copy()
          # POST data, gets the Order object with the given primary key (pk), 
         order = get_object_or_404(Order, pk=pk)
-<<<<<<< HEAD
          # adds the order ID to the POST data,
-=======
         if order.canceled:
             return JsonResponse({"status": "error", 'message': 'This order was canceled', })
->>>>>>> bc3a2b3918a20ab3c6dd499f125ac182edf316d2
         post['order'] = order.pk
          # and creates an instance of the CommentForm with the modified POST data.
         form = CommentForm(data=post)
