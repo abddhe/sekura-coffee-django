@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.template.defaultfilters import slugify
 from django.contrib.auth.models import User
+from menu.utils import generate_session_token
 
 
 class Category(models.Model):
@@ -71,6 +72,7 @@ class Order(models.Model):
     total_price = models.FloatField(blank=True, default=0)
     ordered = models.BooleanField(default=False)
     canceled = models.BooleanField(default=False)
+    user_token = models.CharField(max_length=255, default=generate_session_token())
     order_accept = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

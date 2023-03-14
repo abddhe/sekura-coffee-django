@@ -174,7 +174,7 @@ $(() => {
             },
             success: function (data) {
                 toastr[data?.status](data?.message)
-                $.cookie('token', data.token)
+                $.cookie('user-token', data.token)
                 counter.each(function () {
                     $(this).remove()
                 })
@@ -239,6 +239,7 @@ $(() => {
             },
             success: function (data) {
                 toastr[data?.status](data?.message)
+                if (data?.status === 'error') return $("#commentModal").modal('hide');
                 const comments = data.data
                 showMode()
                 $("#commentModal").data('id', order)
@@ -259,5 +260,18 @@ $(() => {
             }
         })
     })
+
+    const websocketSchema = location.protocol === 'https' ? 'wss' : 'ws'
+    const websocketURL = `${websocketSchema}://${location.host}/notifications`
+    const websocket = new WebSocket(websocketURL);
+    websocket.onmessage = function (event) {
+        const data = JSON.parse(event.data)
+        console.log(data)
+        const token = $.cookie('user-token')
+        if (token && data?.data?.token && data?.data?.token === token) {
+            toastr['info'](data?.message)
+            new Notification(data?.message)
+        }
+    }
 
 });

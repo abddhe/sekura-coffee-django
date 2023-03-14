@@ -133,6 +133,7 @@ def order_create(request: HttpRequest):
                 order = Order.objects.create(table_id=1)
                 request.session['order'] = order.pk
                 request.session.save()
+
             order_items = OrderItem.objects.filter(order=order, item=item).exists()
             if not order_items:
                 OrderItem.objects.create(order=order, item=item)
@@ -164,7 +165,7 @@ def order_make(request: HttpRequest):
             order.save()
             # here must be notification firebase
             return JsonResponse({"status": 'success', "message": "Order has been sent to chief",
-                                 'token': generate_token_by_id(order.pk),
+                                 'token': order.user_token,
                                  "html": '<button type="button" class="btn mb-2 comment w-100 btn-submit">Order Comment</button><button type="button" class="btn order-cancel w-100 btn-submit">Cancel</button>'})
         return redirect(reverse_lazy('home'))
     except ObjectDoesNotExist:
@@ -292,7 +293,12 @@ def comment_create(request, pk: int):
         post = request.POST.copy()
          # POST data, gets the Order object with the given primary key (pk), 
         order = get_object_or_404(Order, pk=pk)
+<<<<<<< HEAD
          # adds the order ID to the POST data,
+=======
+        if order.canceled:
+            return JsonResponse({"status": "error", 'message': 'This order was canceled', })
+>>>>>>> bc3a2b3918a20ab3c6dd499f125ac182edf316d2
         post['order'] = order.pk
          # and creates an instance of the CommentForm with the modified POST data.
         form = CommentForm(data=post)
