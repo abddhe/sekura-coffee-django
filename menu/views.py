@@ -9,8 +9,8 @@ from django.urls import reverse_lazy
 from menu.forms import CommentForm
 from django.http import (Http404, HttpRequest, JsonResponse, HttpResponse)
 from django.core.exceptions import ObjectDoesNotExist
-from menu.utils import send_notification
-from django.core.serializers.json import DjangoJSONEncoder
+from menu.utils import generate_token_by_id
+from django.core.paginator import Paginator
 
 
 class HomeView(TemplateView):
@@ -35,7 +35,8 @@ class OrderListView(HomeView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        context['order_list'] = Order.objects.filter(table_id=1, canceled=False, created_at__date=datetime.today()).order_by('-created_at')
+        context['order_list'] = Order.objects.filter(table_id=1, canceled=False,
+                                                     created_at__date=datetime.today()).order_by('-created_at')
         return context
 
 
@@ -53,6 +54,7 @@ class ItemsListView(ListView):
     # This is the name of the context variable that 
     # the view will use to store the data to display on the page.
     context_object_name = "item_list"
+
 
     def get_queryset(self):
         category = Category.objects.get(slug=self.kwargs["category"])
@@ -124,7 +126,7 @@ def order_make(request: HttpRequest):
             order.ordered = True
             order.save()
             # here must be notification firebase
-            return JsonResponse({"status": 'success', "message": "Order has been sent to chief",
+            return JsonResponse({"status": 'success', "message": "Order has been sent to chief",'token':generate_token_by_id(order.pk),
                                  "html": '<button type="button" class="btn mb-2 comment w-100 btn-submit">Order Comment</button><button type="button" class="btn order-cancel w-100 btn-submit">Cancel</button>'})
         return redirect(reverse_lazy('home'))
     except ObjectDoesNotExist:
@@ -227,7 +229,7 @@ def comment_create(request, pk: int):
             form.save()
             comments = Comment.objects.filter(order_id=pk).values()
             data = list(comments)
-            return JsonResponse({"status": "success", "data": data})
+            return JsonResponse({"status": "success", 'message': 'The comment was added successfully', "data": data})
         return JsonResponse({"status": 'error', "errors": form.errors}, status=404)
     except Http404:
         return JsonResponse({"status": 'error', "message": "This order is not exists"}, status=404)
@@ -235,3 +237,4 @@ def comment_create(request, pk: int):
         return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)
     except KeyError:
         return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)
+

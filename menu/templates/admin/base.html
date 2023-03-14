@@ -91,7 +91,7 @@
                                             </li>
                                         {% empty %}
 
-                                            <li style="list-style: none;" class="p-2">No new notification</li>
+                                            <li id="empty-notification" style="list-style: none;" class="p-2 text-center">No new notification</li>
                                         {% endfor %}
                                         <li style="list-style: none;border-top: 1px solid #333;"><a
                                                 style="text-transform: none;text-align: center;font-size: 0.8rem;color: #6c6c6c !important;"
@@ -185,17 +185,19 @@
     const websocket = new WebSocket(websocketURL);
     websocket.onmessage = function (event) {
         const data = JSON.parse(event.data)
-        console.log(data)
-        const not = new Notification(data?.message, {body: 'hi'})
+        toastr['info'](data?.message)
+        const not = new Notification(data?.message)
         not.onclick = function (ev) {
             if (!data?.data?.url) return;
             location.href = data?.data?.url
         }
         $("#notifications_badge").html(+$("#notifications_badge").text() + 1)
-        $("#notifications_list").prepend(`<li style="list-style: none;"><a class="dropdown-item text-black" href="${data?.data?.url}"><iclass="fa fa-envelope"></i>&nbsp;${data?.message}</a></li>`)
+        $("#notifications_list").prepend(`<li style="list-style: none;"><a class="dropdown-item text-black" href="${data?.data?.url}"><i class="fa fa-envelope"></i>&nbsp;${data?.message}</a></li>`)
+        $('#empty-notification').remove();
         switch (data?.data?.type) {
             case 1: // orders
-                let html = `<div class="card mb-3" data-id="22">
+                if (data?.data?.payload.type === 'order'){
+                    let html = `<div class="card mb-3" data-id="22">
             <div class="card-header d-flex justify-content-between align-content-center">
                 <a href="${data.data?.payload.url}">Order
                     <strong>#${data?.data?.payload.order_id}</strong></a>
@@ -234,12 +236,15 @@
 
         </div>`
             $('#order_table').prepend(html)
+$('#alert-order-empty').remove();
+                }
                 return;
             case 2: // comments
                 $(`#comments_${data?.data?.payload?.order_id}`).prepend(`<li class="list-group-item list-unstyled mb-2 bg-info bg-opacity-50 d-flex justify-content-between align-content-center">
                 <span class="d-block">${data?.data?.payload?.body}</span><span class="d-block">
                 <span class="badge text-primary text-uppercase">new</span>
                 </span></li>`)
+                $('#alert-comment-empty').remove();
                 return;
         }
 

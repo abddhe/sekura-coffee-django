@@ -1,5 +1,6 @@
 import requests
 import json
+import hashlib
 
 
 def send_notification(registration_ids, message_title, message_desc):
@@ -29,3 +30,12 @@ def send_notification(registration_ids, message_title, message_desc):
         return True
     except json.JSONDecodeError:
         pass
+
+
+def generate_token_by_id(obj):
+    # Convert object's ID to bytes and generate a SHA256 hash
+    hash_value = hashlib.sha256(str(obj).encode('utf-8')).digest()
+
+    # Convert the hash to a hex string and return the first 10 characters
+    token = hash_value.hex()[:10]
+    return token

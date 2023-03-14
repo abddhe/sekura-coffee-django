@@ -1,20 +1,67 @@
 {% extends 'admin/base.html' %}
 {% load extra_context %}
 {% block content %}
-    <h1><a href="{% url 'admin:table_orders' order.table_id %}">Order <span class="fw-bolder">#{{ order.pk }}</span></a> </h1>
+    <div class=" d-flex justify-content-between align-content-center">
+        <h1>
+            Order <span class="fw-bolder">#{{ order.pk }}</span>
+        </h1>
+        {% if not order.order_accept and order.created_at|new and not order.canceled %}
+            <div><span
+                    class="badge bg-primary text-uppercase">new</span></div>
+        {% endif %}
+        {% if order.canceled %}
+            <div> <span
+                    class="badge bg-danger text-uppercase">canceled</span></div>
+        {% endif %}
+    </div>
+    {% if not order.order_accept or order.canceled %}
+        {% if order.canceled %}
+            <form method="post" action="{% url 'admin:table_order_delete' order.table_id order.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn w-100 btn-danger">Delete order</button>
+            </form>
+        {% else %}
+            <button type="button" data-id="{{ order.pk }}" class="btn mb-2 accept-order w-100 btn-dark">Accept order</button>
+        {% endif %}
+    {% endif %}
     <h3>Items:</h3>
     <ul>
-        {% for orderitem in order.orderitem_set.all %}
-            <li>{{ orderitem.item.name }} <strong>count:</strong> {{ orderitem.count }}</li>
-        {% endfor %}
+        <div class="card mb-3" data-id="{{ order.pk }}">
+
+            <div class="card-body">
+                <div class="row">
+                    {% for order_item in order.orderitem_set.all %}
+                        <div class="col-lg-4 col-md-6 col-sm-4 mb-3">
+                            <div class="card">
+                                <img class="card-img-top" src="{{ order_item.item.image.url }}" alt="product"/>
+                                <div class="card-body">
+                                    <div class="card-title"><p>
+                                        {{ order_item.item.name }}</p>
+                                    </div>
+                                </div>
+                                <div id="#card-footer" class="card-footer">
+                                    count: {{ order_item.count }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
     </ul>
     <h3>Comments:</h3>
     <ul class="list-group" id="comments_{{ order.pk }}">
         {% for comment in order.comment_set.all|dictsortreversed:"created_at" %}
             <li class="list-group-item list-unstyled mb-2 bg-info bg-opacity-50 d-flex justify-content-between align-content-center">
-                <span class="d-block">{{ comment.body }}</span><span class="d-block"> {% if comment.created_at|new  %}
-                <span class="badge text-primary text-uppercase">new</span>
-                {% endif %}  </span></li>
+                <span class="d-block">{{ comment.body }}</span><span class="d-block"> {% if comment.created_at|new %}
+                <span class="badge bg-primary text-uppercase">new</span>
+            {% endif %}  </span></li>
+        {% empty %}
+            <div id="alert-comment-empty" class="alert alert-info bg-opacity-50 text-center text-uppercase">This order don't
+                have comments
+            </div>
+
         {% endfor %}
 
     </ul>

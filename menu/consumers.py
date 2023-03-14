@@ -1,10 +1,5 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.dispatch import receiver
-from django.db.models.signals import post_save
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from menu.models import (Order, Notification)
 
 
 class NotificationConsumer(AsyncWebsocketConsumer):

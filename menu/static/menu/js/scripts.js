@@ -1,8 +1,24 @@
-import {NotificationWebsocket, websocketUrl} from '/static/menu/js/handcheck.js'
 import '/static/menu/js/plugins/jQuery.js'
 import '/static/menu/js/plugins/jQuery.cookie.js'
+import '/static/menu/js/plugins/toastr.min.js'
 
-
+toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+}
 $(() => {
     function showMode() {
         const modalHtml = `<div class="modal fade " id="commentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -29,7 +45,6 @@ $(() => {
     $(document).on("hidden.bs.modal", "#commentModal", function (e) {
         $(this).remove();
     });
-    $('#year').html(new Date().getFullYear())
     $(document).on('click', '.counter .plus', function (e) {
         e.preventDefault();
         const value = $(this).next()
@@ -45,6 +60,7 @@ $(() => {
                 item: item, // assuming item is a reference to a DOM element or jQuery object
             },
             success: function (data) {
+                toastr[data?.status](data?.message)
                 value.html(data.data.count)
             },
             error: function (err) {
@@ -67,6 +83,7 @@ $(() => {
                 item: item, // assuming item is a reference to a DOM element or jQuery object
             },
             success: function (data) {
+                toastr[data?.status](data?.message)
                 if (data.operation === "minus")
                     return value.html(data.data.count)
                 if (data.operation === "item-cancel")
@@ -95,6 +112,8 @@ $(() => {
                 item: item, // assuming item is a reference to a DOM element or jQuery object
             },
             success: function (data) {
+                console.log(data)
+                toastr[data?.status](data?.message)
                 if (data.operation === "order-cancel")
                     return parent.remove()
             },
@@ -116,6 +135,7 @@ $(() => {
                 order: order, // assuming order is a reference to a DOM element or jQuery object
             },
             success: function (data) {
+                toastr[data?.status](data?.message)
                 if (data.operation === "order-cancel")
                     return parent.remove()
             },
@@ -135,7 +155,7 @@ $(() => {
                 itemId
             },
             success: function (data) {
-                console.log(data)
+                toastr[data?.status](data?.message)
             }, error: function (err) {
                 console.log(err)
             }
@@ -153,7 +173,9 @@ $(() => {
                 order,
             },
             success: function (data) {
-                counter.each(function (){
+                toastr[data?.status](data?.message)
+                $.cookie('token',data.token)
+                counter.each(function () {
                     $(this).remove()
                 })
                 parent.html(data.html)
@@ -190,12 +212,11 @@ $(() => {
     })
     $(document).on('click', '.add-comment', function (e) {
         e.preventDefault()
-        console.log('e')
         $('#modal-body').html(`<form>
                 <label class="form-label">Comment</label>
                 <textarea id="comment-body" class="form-control"></textarea>
                 </form>`)
-                        $('.modal-footer').html(`
+        $('.modal-footer').html(`
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     <button type="button" class="btn btn-primary" id="comment-form-btn">Comment</button>
                                                   `)
@@ -217,6 +238,7 @@ $(() => {
                 body: comment
             },
             success: function (data) {
+                toastr[data?.status](data?.message)
                 const comments = data.data
                 showMode()
                 $("#commentModal").data('id', order)
@@ -239,4 +261,4 @@ $(() => {
     })
     // new NotificationWebsocket(websocketUrl)
 
-})
+});

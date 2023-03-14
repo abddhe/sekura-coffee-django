@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 from datetime import datetime
 from django.contrib import messages
-
+from menu.utils import generate_token_by_id
 
 class OrderItemAdmin(admin.ModelAdmin):
     pass
@@ -122,7 +122,7 @@ class TableOrderAdmin(admin.ModelAdmin):
                 else:
                     raise ValidationError(form.errors)
             orders = Order.objects.filter(table=table, ordered=True, created_at__date=datetime.today()).order_by(
-                'order_accept', '-created_at')
+                '-updated_at')
 
             context = dict(
                 # Include common variables for rendering the admin template.
@@ -148,20 +148,20 @@ admin.site.register(Notification, NotificationAdmin)
 
 
 @receiver(pre_save, sender=Order)
-def handle_new_object(sender, instance, **kwargs):
+def handle_new_order(sender, instance, **kwargs):
     try:
         old_instance = sender.objects.get(pk=instance.pk)
         old_value = getattr(old_instance, 'ordered')
         payload = dict(url=reverse('admin:table_order_details',
                                    kwargs={'pk': getattr(instance, 'table_id'), 'order_id': getattr(instance, 'pk')}),
                        order_id=getattr(instance, 'pk'),
+                       type='order',
                        items=[dict(image=order_item.item.image.url, name=order_item.item.name, count=order_item.count)
                               for order_item in getattr(instance, 'orderitem_set').all()])
-        print(payload)
         if not old_value:
-            # Trigger WebSocket consumer
             notify = Notification.objects.create(body=f'New order in table no. {instance.table_id}', type=1)
             channel_layer = get_channel_layer()
+            print(generate_token_by_id(instance.pk))
             async_to_sync(channel_layer.group_send)(
                 'orders_orders',
                 {
@@ -176,7 +176,7 @@ def handle_new_object(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Comment)
-def handle_new_object(sender, instance, created, **kwargs):
+def handle_new_comment(sender, instance, created, **kwargs):
     if created and instance.order.ordered:
         # Trigger WebSocket consumer
         payload = dict(order_id=instance.order.pk, body=instance.body)
@@ -192,3 +192,31 @@ def handle_new_object(sender, instance, created, **kwargs):
                 'message': notify.body
             }
         )
+
+
+@receiver(pre_save, sender=Order)
+def handle_order_cancellation(sender, instance, **kwargs):
+    try:
+        old_instance = sender.objects.get(pk=instance.pk)
+        old_value = getattr(old_instance, 'canceled')
+        payload = dict(url=reverse('admin:table_order_details',
+                                   kwargs={'pk': getattr(instance, 'table_id'), 'order_id': getattr(instance, 'pk')}),
+                       order_id=getattr(instance, 'pk'),
+                       type='cancel'
+                       )
+        if not old_value and instance.canceled is True:
+            # Trigger WebSocket consumer
+            notify = Notification.objects.create(
+                body=f'Order has been canceled in table no.{instance.table_id}', type=1)
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                'orders_orders',
+                {
+                    'type': 'notification',
+                    'data': {"payload": payload,
+                             'url': reverse('admin:notification_read', kwargs={'pk': notify.pk}), "type": 2},
+                    'message': notify.body
+                }
+            )
+    except sender.DoesNotExist:
+        return

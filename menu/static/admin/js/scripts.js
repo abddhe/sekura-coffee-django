@@ -1,14 +1,32 @@
 import '/static/menu/js/plugins/jQuery.js'
+import '/static/menu/js/plugins/toastr.min.js'
 
+toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+}
 $(document).ready(function () {
-    $(document).on('click', '.accept-order', function (e){
-        const order = $(this).parent().parent().data('id');
+    $(document).on('click', '.accept-order', function (e) {
+        const order = $(this).data('id');
         const modal = `<div class="modal fade" id="acceptOrderModal" tabindex="-1" aria-labelledby="acceptOrderModalLabel" aria-hidden="true">
   <div class="modal-dialog">
         <form method="post" class="accept_order_form" data-id="${order}">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="acceptOrderModalLabel">New message</h1>
+        <h1 class="modal-title fs-5" id="acceptOrderModalLabel">Accept order #${order}</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -20,7 +38,7 @@ $(document).ready(function () {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Send message</button>
+        <button type="submit" class="btn btn-primary">Accept order</button>
       </div>
         </form>
     </div>
@@ -33,26 +51,30 @@ $(document).ready(function () {
         $(this).remove();
     });
 
-    $(document).on('submit','.accept_order_form',function (e){
+    $(document).on('submit', '.accept_order_form', function (e) {
         e.preventDefault();
-        console.log('e')
         const receive_time = $('#receive_time').val()
         const order = $(this).data('id')
+        let url = location.href.split('/')
+        if (url.pop().match('[0-9]'))
+            url = url.join('/')
+        else url = location.href
         $.ajax({
-            type:'POST',
-            url:location.href,
-            data:{
+            type: 'POST',
+            url: url,
+            data: {
                 receive_time,
                 order,
-                order_accept:true
+                order_accept: true
             },
-            success: function (data){
-                console.log(data)
+            success: function (data) {
+                toastr[data?.status](data?.message)
                 if (data?.status === 'success') {
                     $('#acceptOrderModal').modal('hide')
-                    $(`.card[data-id="${order}"]`).find(`#card-footer`).remove()
+                    $(`.accept-order[data-id="${order}"]`).remove();
+                    $(`.card[data-id="${order}"] .card-footer`).remove()
                 }
-            },error:function (error){
+            }, error: function (error) {
                 console.error(error)
             }
         })

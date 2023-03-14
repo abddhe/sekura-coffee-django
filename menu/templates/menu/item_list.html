@@ -7,14 +7,12 @@
 {% block content %}
     <section class="page-section items-heading">
         <div class="container">
-            <div class="row card-deck ">
+            <div id="list-item" class="row card-deck ">
                 {% for item in item_list %}
                     <div class="col-lg-4 col-md-6 col-sm-4 mb-3">
                         <div class="card ">
 
-                            <a href="{% url 'item_detail' item.category.slug item.id %}" class=" d-inline-block "
-
-                            >
+                            <a href="{% url 'item_detail' item.category.slug item.id %}" class=" d-inline-block ">
                                 <img class="card-img-top" src="{{ item.image.url }}" alt="product"/>
                             </a>
 
