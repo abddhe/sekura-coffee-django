@@ -1,6 +1,9 @@
 import requests
 import json
 import hashlib
+import uuid
+
+from django.contrib.sessions.backends.db import SessionStore
 
 
 def send_notification(registration_ids, message_title, message_desc):
@@ -39,3 +42,13 @@ def generate_token_by_id(obj):
     # Convert the hash to a hex string and return the first 10 characters
     token = hash_value.hex()[:10]
     return token
+
+
+# Generate a unique token for the current browser session
+def generate_session_token():
+    session = SessionStore()
+    session.create()
+    session.save()
+    session_token = hashlib.sha256(
+        str(session.session_key).encode('utf-8') + str(uuid.uuid4()).encode('utf-8')).hexdigest()
+    return session_token

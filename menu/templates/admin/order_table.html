@@ -48,14 +48,10 @@
                 </div>
                 {% if not order.order_accept or order.canceled %}
                     <div class="card-footer">
-                        {% if order.canceled %}
                             <form method="post" action="{% url 'admin:table_order_delete' order.table_id order.pk %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn w-100 btn-danger">Delete order</button>
                             </form>
-                        {% else %}
-                            <button type="button" data-id="{{ order.pk }}" class="btn mb-2 accept-order w-100 btn-dark">Accept order</button>
-                        {% endif %}
                     </div>
                 {% endif %}
             </div>

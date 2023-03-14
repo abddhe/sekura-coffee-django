@@ -18,6 +18,7 @@ from datetime import datetime
 from django.contrib import messages
 from menu.utils import generate_token_by_id
 
+
 class OrderItemAdmin(admin.ModelAdmin):
     pass
 
@@ -161,7 +162,6 @@ def handle_new_order(sender, instance, **kwargs):
         if not old_value:
             notify = Notification.objects.create(body=f'New order in table no. {instance.table_id}', type=1)
             channel_layer = get_channel_layer()
-            print(generate_token_by_id(instance.pk))
             async_to_sync(channel_layer.group_send)(
                 'orders_orders',
                 {
@@ -202,6 +202,7 @@ def handle_order_cancellation(sender, instance, **kwargs):
         payload = dict(url=reverse('admin:table_order_details',
                                    kwargs={'pk': getattr(instance, 'table_id'), 'order_id': getattr(instance, 'pk')}),
                        order_id=getattr(instance, 'pk'),
+                       table_id=getattr(instance, 'table_id'),
                        type='cancel'
                        )
         if not old_value and instance.canceled is True:
@@ -216,6 +217,30 @@ def handle_order_cancellation(sender, instance, **kwargs):
                     'data': {"payload": payload,
                              'url': reverse('admin:notification_read', kwargs={'pk': notify.pk}), "type": 2},
                     'message': notify.body
+                }
+            )
+    except sender.DoesNotExist:
+        return
+
+
+@receiver(pre_save, sender=Order)
+def handle_order_acceptation(sender, instance, **kwargs):
+    try:
+        old_instance = sender.objects.get(pk=instance.pk)
+        old_value = getattr(old_instance, 'order_accept')
+        payload = dict(
+            type='order',
+        )
+        if not old_value and instance.order_accept:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                'orders_orders',
+                {
+                    'type': 'notification',
+                    'data': {"payload": payload,
+                             'token': instance.user_token,
+                             },
+                    'message': f"Order no.{instance.pk} was accepted",
                 }
             )
     except sender.DoesNotExist:

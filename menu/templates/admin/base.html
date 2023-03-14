@@ -185,6 +185,7 @@
     const websocket = new WebSocket(websocketURL);
     websocket.onmessage = function (event) {
         const data = JSON.parse(event.data)
+        if (data?.data?.token) return;
         toastr['info'](data?.message)
         const not = new Notification(data?.message)
         not.onclick = function (ev) {
@@ -229,7 +230,7 @@
                 </div>
             </div>
 
-                <div id="#card-footer" class="card-footer">
+                <div class="card-footer">
 
                         <button type="button" data-id="${data?.data?.payload.order_id}" class="btn mb-2 accept-order w-100 btn-dark">Accept order</button>
 
@@ -237,7 +238,7 @@
 
         </div>`
             $('#order_table').prepend(html)
-$('#alert-order-empty').remove();
+            $('#alert-order-empty').remove();
                 }
                 return;
             case 2: // comments

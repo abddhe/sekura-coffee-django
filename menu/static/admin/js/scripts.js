@@ -72,7 +72,7 @@ $(document).ready(function () {
                 if (data?.status === 'success') {
                     $('#acceptOrderModal').modal('hide')
                     $(`.accept-order[data-id="${order}"]`).remove();
-                    $(`.card[data-id="${order}"] .card-footer`).remove()
+                    $(`.accept-order[data-id="${order}"]`).parent().remove()
                 }
             }, error: function (error) {
                 console.error(error)
@@ -81,12 +81,12 @@ $(document).ready(function () {
     })
      if ("Notification" in window) {
         // Check if notifications are already allowed or denied
-        if (Notification.permission === "denied") {
-            alert('Please allow notification');
+        if (Notification.permission !== "granted") {
+            confirm('Please allow notification');
             // Request permission for notifications
             Notification.requestPermission().then(function (permission) {
                 // If permission is granted, you can proceed with sending notifications
-                if (permission === "denied") {
+                if (permission !== "granted") {
                     // You can proceed with sending notifications
                    location.reload();
                 }
