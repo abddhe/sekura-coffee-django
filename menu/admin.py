@@ -21,25 +21,39 @@ from menu.utils import generate_token_by_id
 class OrderItemAdmin(admin.ModelAdmin):
     pass
 
-
+#, this admin class provides basic functionalities for managing notifications in the Django Admin site, 
+# including filtering, sorting, and performing custom admin actions on the selected notifications.
+#  Additionally, it adds a new URL pattern for reading a notification and provides a custom view function 
+# for handling the opening of a notification and redirecting to relevant admin pages.
 class NotificationAdmin(admin.ModelAdmin):
+    #method: A custom admin action method that sets the opened field of selected notifications to True.
     def make_opened(modeladmin, request, queryset):
         """Make all selected notifications opened"""
         queryset.update(opened=True)
 
     make_opened.short_description = "Mark selected notifications as opened"
+    # property: A tuple that specifies the fields to be displayed in the list view of notifications.
+    #  It includes the body, opened, and created_at fields.
 
     list_display = ('body', 'opened', 'created_at')
+    # property: A tuple that specifies the fields to be used for filtering notifications in the list view.
+    #  In this case, it includes only the opened field.
     list_filter = ["opened"]
+    # property: A list that specifies the fields that can be used to sort notifications in the list view. It includes the opened and created_at fields.
+    # actions property: A list of admin action methods that can be performed on the selected notifications in the list view. 
+    # In this case, it includes only the make_opened method.
     sortable_by = ['opened', 'created_at']
     actions = [make_opened]
-
+    # method: A custom method that returns the admin site's URL patterns for managing notifications.
+    #  It adds a new URL pattern for reading a notification.
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
             path('<int:pk>', self.admin_site.admin_view(self.notification_read), name="notification_read")
         ]
         return urls + my_urls
+    # method: A custom method that returns the admin site's URL patterns for managing notifications.
+    #  It adds a new URL pattern for reading a notification.
 
     def notification_read(self, request: HttpRequest, **kwargs):
         notify = get_object_or_404(Notification, pk=kwargs['pk'])
@@ -60,10 +74,14 @@ class NotificationAdmin(admin.ModelAdmin):
 
 
 class TableOrderAdmin(admin.ModelAdmin):
-
+#The change_view method is overridden to redirect to a custom URL instead of the default change view URL. 
+# When a TableOrder instance is clicked on in the admin interface,
+#  the user will be redirected to the URL defined by the table_orders_listing view method, 
+# passing the object_id (primary key) of the TableOrder instance in the URL
     def change_view(self, request, object_id, form_url="", extra_context=None):
         return HttpResponseRedirect(reverse('admin:table_orders', kwargs={'pk': object_id}))
-
+#The get_urls method is overridden to add custom URL patterns to the admin interface.
+#  These URL patterns map to view methods that handle requests to perform custom actions on TableOrder instances.
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
@@ -76,6 +94,9 @@ class TableOrderAdmin(admin.ModelAdmin):
                  name="table_order_delete_all"),
         ]
         return my_urls + urls
+    #The table_orders_details view method is responsible for displaying the details of a particular order associated with a TableOrder instance.
+    #  It takes the primary key of the TableOrder instance and the primary key of the order as URL parameters,
+    #  retrieves the order from the database, and displays its details in a template.
 
     def table_orders_details(self, request: HttpRequest, **kwargs):
         table = get_object_or_404(Table, pk=kwargs['pk'])
@@ -87,6 +108,9 @@ class TableOrderAdmin(admin.ModelAdmin):
             order=order
         )
         return TemplateResponse(request, "admin/order_table_detail.html", context)
+    #The table_order_delete view method is responsible for deleting a particular order associated with a TableOrder instance.
+    #  It takes the primary key of the TableOrder instance and the primary key of the order as URL parameters, 
+    # retrieves the order from the database, deletes it, and redirects back to the table_orders_listing view.
 
     def table_order_delete_all(self, request: HttpRequest, **kwargs):
         if request.method == 'POST':
@@ -97,13 +121,17 @@ class TableOrderAdmin(admin.ModelAdmin):
                 order_count += 1
         messages.success(request, f"Successfully deleted {order_count} orders.")
         return HttpResponseRedirect(reverse('admin:table_orders', kwargs={'pk': kwargs['pk']}))
-
+#The table_order_delete view method is responsible for deleting a particular order associated with a TableOrder instance. It takes the primary key of the TableOrder instance and the primary key of the order as URL parameters,
+#  retrieves the order from the database, deletes it, and redirects back to the table_orders_listing view.
     def table_order_delete(self, request: HttpRequest, **kwargs):
         if request.method == 'POST':
             order = get_object_or_404(Order, pk=kwargs['order_id'])
             order.delete()
             messages.success(request, f'The order "{order}" was deleted successfully')
             return HttpResponseRedirect(reverse('admin:table_orders', kwargs={'pk': kwargs['pk']}))
+    #The table_orders_listing view method is responsible for displaying a list of all orders associated with a particular TableOrder instance.
+    #  It takes the primary key of the TableOrder instance as a URL parameter,
+    #  retrieves all orders associated with that TableOrder instance, and displays them in a template.
 
     @csrf_exempt
     def table_orders_listing(self, request: HttpRequest, pk):
