@@ -174,7 +174,7 @@ $(() => {
             },
             success: function (data) {
                 toastr[data?.status](data?.message)
-                $.cookie('token',data.token)
+                $.cookie('token', data.token)
                 counter.each(function () {
                     $(this).remove()
                 })
@@ -259,6 +259,5 @@ $(() => {
             }
         })
     })
-    // new NotificationWebsocket(websocketUrl)
 
 });

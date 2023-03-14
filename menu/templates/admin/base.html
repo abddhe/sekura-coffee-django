@@ -190,6 +190,7 @@
         not.onclick = function (ev) {
             if (!data?.data?.url) return;
             location.href = data?.data?.url
+            window.focus()
         }
         $("#notifications_badge").html(+$("#notifications_badge").text() + 1)
         $("#notifications_list").prepend(`<li style="list-style: none;"><a class="dropdown-item text-black" href="${data?.data?.url}"><i class="fa fa-envelope"></i>&nbsp;${data?.message}</a></li>`)
@@ -230,7 +231,7 @@
 
                 <div id="#card-footer" class="card-footer">
 
-                        <button type="button" class="btn mb-2 accept-order w-100 btn-dark">Accept order</button>
+                        <button type="button" data-id="${data?.data?.payload.order_id}" class="btn mb-2 accept-order w-100 btn-dark">Accept order</button>
 
                 </div>
 

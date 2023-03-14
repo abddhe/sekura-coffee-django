@@ -68,10 +68,11 @@
 
 {% block content %}
 {% endblock content %}
+{% block pagination %}
 
-{% load static %}
+{% endblock %}
 <footer class="footer text-faded text-center py-5">
-    <div class="container"><p class="m-0 small"> All Reserved &COPY; 2022 - <span id="year"></span></p></div>
+    <div class="container"><p class="m-0 small"> All Reserved &COPY; 2022 - {% now "Y" %}</p></div>
 </footer>
 <!-- Bootstrap core JS-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

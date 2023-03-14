@@ -79,4 +79,21 @@ $(document).ready(function () {
             }
         })
     })
+     if ("Notification" in window) {
+        // Check if notifications are already allowed or denied
+        if (Notification.permission === "denied") {
+            alert('Please allow notification');
+            // Request permission for notifications
+            Notification.requestPermission().then(function (permission) {
+                // If permission is granted, you can proceed with sending notifications
+                if (permission === "denied") {
+                    // You can proceed with sending notifications
+                   location.reload();
+                }
+            });
+        }
+    } else{
+        alert("Your browser don't support notification please open anther browser")
+        location.reload();
+    }
 });

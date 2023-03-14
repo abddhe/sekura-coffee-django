@@ -10,7 +10,7 @@ from menu.forms import CommentForm
 from django.http import (Http404, HttpRequest, JsonResponse, HttpResponse)
 from django.core.exceptions import ObjectDoesNotExist
 from menu.utils import generate_token_by_id
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 
 
 class HomeView(TemplateView):
@@ -63,9 +63,24 @@ class ItemsListView(ListView):
     # This method is responsible for fetching the queryset of items that the view will display on the page.
     #  It does this by retrieving the category from the URL parameters and then filtering the items by that category.
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         context['category'] = Category.objects.get(slug=self.kwargs['category'])
+
+        # Get the page number from the URL parameters
+        page_number = self.request.GET.get('page') or 1
+        print(context['item_list'])
+        # Paginate the queryset
+        paginator = Paginator(context['item_list'], 3)
+        try:
+            page_obj = paginator.page(page_number)
+        except EmptyPage:
+            page_obj = paginator.page(1)
+
+        # Update the context with the paginated items and the page object
+        context['item_list'] = page_obj.object_list
+        context['page_obj'] = page_obj
+
         return context
 
 
@@ -126,7 +141,8 @@ def order_make(request: HttpRequest):
             order.ordered = True
             order.save()
             # here must be notification firebase
-            return JsonResponse({"status": 'success', "message": "Order has been sent to chief",'token':generate_token_by_id(order.pk),
+            return JsonResponse({"status": 'success', "message": "Order has been sent to chief",
+                                 'token': generate_token_by_id(order.pk),
                                  "html": '<button type="button" class="btn mb-2 comment w-100 btn-submit">Order Comment</button><button type="button" class="btn order-cancel w-100 btn-submit">Cancel</button>'})
         return redirect(reverse_lazy('home'))
     except ObjectDoesNotExist:
@@ -237,4 +253,3 @@ def comment_create(request, pk: int):
         return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)
     except KeyError:
         return JsonResponse({"status": "error", 'message': "Please don't play on site"}, status=500)
-
